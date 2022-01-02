@@ -55,7 +55,11 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        self.params['W1'] = np.random.normal(0,weight_scale,(input_dim,hidden_dim));
+        self.params['W2'] = np.random.normal(0,weight_scale,(hidden_dim,num_classes));
+        self.params['b1'] = np.zeros(hidden_dim);
+        self.params['b2'] = np.zeros(num_classes);
+        
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -87,9 +91,15 @@ class TwoLayerNet(object):
         # class scores for X and storing them in the scores variable.              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
+        
+        N = X.shape[0];
+        hidden_layer = {};
+        W1 = self.params['W1']; W2 = self.params['W2']; b1=self.params['b1']; b2=self.params['b2'];
+        
+        hidden_layer[0] = np.dot(X.reshape(N,-1), self.params['W1']) + self.params['b1'];
+        hidden_layer[1],cache = relu_forward(hidden_layer[0])
+        scores = np.dot(hidden_layer[1], self.params['W2']) + self.params['b2'];
+        
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -111,8 +121,13 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        
+        upstream_gradient = {};
+        loss, upstream_gradient['scores'] = softmax_loss(scores,y);
+        print(upstream_gradient['scores'].shape)
+        # loss += 0.5 * np.sum(W1*W1 + W2*W2);
+        upstream_gradient['X'],grads['W2'],grads['b2'] = affine_backward(upstream_gradient['scores'], (X,W2,b2));
+        upstream_gradient['X'],grads['W1'],grads['b1'] = affine_backward(grads['W2'], (X, W1, b1));
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
